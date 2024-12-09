@@ -16,6 +16,7 @@ app.use(morgan('dev'))
 app.use(json())
 
 
+
 // Variables globales  
 app.use((req, res, next) => {
     next()

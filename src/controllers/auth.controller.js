@@ -1,18 +1,21 @@
 import bcrypt from 'bcryptjs'
 import pool from '../database.js'
+import jwt from 'jsonwebtoken'
 
 export const controller_register = async (req, res) => {
 
     const { username, email, password } = req.body
     const password_hash = await bcrypt.hash(password, 10)
 
-    if (!username || !email || !password) {
-        return res.status(400).json({
-            error: 'Todos los campos son obligatorios'
-        })
-    }
-
     try {
+        // Validar que no exista el email en la base de datos
+        const [[{ match_email }]] = await pool.query('SELECT COUNT(*) as match_email FROM users WHERE email = ?', [email])
+        if (match_email >= 1) return res.status(500).json({ message: "Ya existe un usuario creado con ese email" })
+
+        // Validar que no exista el username en la base de datos
+        const [[{ match_username }]] = await pool.query('SELECT COUNT(*) as match_username FROM users WHERE username = ?', [username])
+        if (match_username >= 1) return res.status(500).json({ message: "Ya existe un usuario creado con ese apodo" })
+
         const [response] = await pool.query(
             `INSERT INTO
                 users (username, email, password)
@@ -50,16 +53,16 @@ export const controller_login = async (req, res) => {
 
     try {
         // Consulta para obtener la contraseña hash
-        const [rows] = await pool.query('SELECT password FROM users WHERE email = ?', [email]);
+        const [[user]] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
 
-        if (rows.length === 0) {
+        if (!user) {
             // Respuesta genérica para evitar filtrado de usuarios existentes
             return res.status(400).json({
                 error: 'Credenciales incorrectas.',
             });
         }
 
-        const password_hash = rows[0].password;
+        const password_hash = user.password;
 
         // Comparar contraseña ingresada con el hash
         const isPasswordValid = await bcrypt.compare(password, password_hash);
@@ -69,6 +72,10 @@ export const controller_login = async (req, res) => {
                 error: 'Credenciales incorrectas.',
             });
         }
+
+        const jwt_token = jwt.sign({ id: user.id, email, id_rol: user.id_rol, isActive: user.isActive, username: user, username },
+            
+        )
 
         // Respuesta exitosa
         res.status(200).json({
