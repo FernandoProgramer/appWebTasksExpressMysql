@@ -7,7 +7,7 @@ export const controller_show_users = async (req, res) => {
     const id_rol_user = req.user.id_rol;
 
     const isValidate = validate_roles(res, [1, 2, 3], id_rol_user);
-    if (isValidate) return isValidate;
+    if (isValidate) return;
 
     try {
 
@@ -51,15 +51,15 @@ export const controller_update_users = async (req, res) => {
 
     try {
         const [response] = await pool.query(`
-    UPDATE
-    users
-    SET
-    username = IFNULL(?, username),
-        email = IFNULL(?, email),
-        password = IFNULL(?, password),
-        id_rol = IFNULL(?, id_rol)
-    WHERE
-    id = ?
+            UPDATE
+            users
+            SET
+            username = IFNULL(?, username),
+                email = IFNULL(?, email),
+                password = IFNULL(?, password),
+                id_rol = IFNULL(?, id_rol)
+            WHERE
+            id = ?
         `, [username, email, password, id_rol, id])
 
         if (response.affectedRows === 0) {

@@ -10,7 +10,6 @@ router.post('/register', validate(registerSchema), controller_register)
 router.post('/login', validate(loginSchema), controller_login)
 router.post('/logout', (req, res) => {
     res
-        .clearCookie('acces_token')
         .status(200)
         .json({ message: 'Session cerrada correctamente' })
 })

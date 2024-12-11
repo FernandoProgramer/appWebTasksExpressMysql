@@ -1,8 +1,15 @@
 import moment from "moment"
 import pool from "../database.js"
-import { search_matches, search_matches_by_table_name } from "../functions/search_matches.tasks.js"
+import { search_matches_by_table_name } from "../functions/search_matches.tasks.js"
+import { validate_roles } from "../functions/validate.roles.js"
+import { messages_system } from "../messages/error.message.js"
 
+// Mostrar todas las tareas del sistema
 export const controller_show_task = async (req, res) => {
+
+    const isValidate = validate_roles(res, [2, 3], req.user.id_rol)
+    if (isValidate) return
+
     try {
         const [response] = await pool.query(
             `
@@ -53,14 +60,20 @@ export const controller_show_task = async (req, res) => {
 
         res.status(200).json(finalResult)
     } catch (error) {
-         
+
     }
 }
 
+// Registrar nueva tarea
 export const controller_saved_task = async (req, res) => {
-    const { id_user, title_task, description_task } = req.body
+    const { title_task, description_task } = req.body;
+    const id_user = req.user.id;
+
+    const isValidate = validate_roles(res, [1, 2, 3], req.user.id_rol);
+    if (isValidate) return;
 
     try {
+
         const [response] = await pool.query('INSERT INTO tasks (id_user, title_task, description_task) VALUES (?,?,?)',
             [
                 id_user,
@@ -84,18 +97,20 @@ export const controller_saved_task = async (req, res) => {
             }
         })
 
-    } catch (error) {
-         
+    } catch {
+        res.status(500).json({ error: messages_system[500] })
     }
 }
 
-
 export const controller_show_my_tasks = async (req, res) => {
-    const { id } = req.params
+    const id_user = req.user.id;
+
+    const isValidate = validate_roles(res, [1, 2, 3], req.user.id_rol);
+    if (isValidate) return;
+
     try {
 
-        const count_matches = await search_matches(id)
-
+        const count_matches = await search_matches_by_table_name('users', 'id', id_user)
         if (count_matches === 0) {
             return res.status(404).json({
                 error: `Usuario no encontrado por id - ${id}`
@@ -121,7 +136,13 @@ export const controller_show_my_tasks = async (req, res) => {
         ORDER BY creation_date DESC;
     `
 
-        const [response] = await pool.query(sql, [id])
+        const [response] = await pool.query(sql, [id_user])
+        if (response.length === 0) {
+
+            return res
+                .status(200)
+                .json(response)
+        }
 
         response.forEach(task => {
             task.creation_date = moment(task.creation_date).format('YYYY-MM-DD HH:mm:ss')   // Formato personalizable
@@ -129,12 +150,13 @@ export const controller_show_my_tasks = async (req, res) => {
         })
 
         const user = {
-            id: response[0].id_user,
+            id: id_user,
             username: response[0].username_user,
             email: response[0].email_user
         }
 
         const tasks = response.map((task2) => ({
+            id_task: task2.id_task,
             title: task2.title_task,
             description_task: task2.description_task,
             creation_date: task2.creation_date,
@@ -147,18 +169,33 @@ export const controller_show_my_tasks = async (req, res) => {
             total_tasks: response[0].count_tasks
         })
 
-    } catch (error) {
-         
+    } catch {
+        res.status(500).json({ error: messages_system[500] })
     }
 }
 
 
 
 export const controller_patch_task = async (req, res) => {
-    const { title_task, description_task } = req.body
-    const { id } = req.params
+    const { title_task, description_task } = req.body;
+    const { id } = req.params;
+    const id_user = req.user.id;
+
+    const isValidate = validate_roles(res, [1, 2, 3], req.user.id_rol);
+    if (isValidate) return;
 
     try {
+
+        const [[{c_t_u}]] = await pool.query('SELECT COUNT(*) AS c_t_u FROM tasks WHERE id = ? AND id_user = ?;',
+            [id, id_user])
+        if (c_t_u === 0) {
+            return res
+                .status(401)
+                .json({
+                    error: messages_system[401]
+                });
+        }
+
         const count_matches = await search_matches_by_table_name('tasks', 'id', id)
         if (count_matches === 0) {
             return res.status(404).json({
@@ -174,10 +211,10 @@ export const controller_patch_task = async (req, res) => {
                 title_task = IFNULL(?, title_task),
                 description_task = IFNULL(?, title_task)
             WHERE
-                id = ?;
+                id = ? AND id_user = ?;
             `
             ,
-            [title_task, description_task, id])
+            [title_task, description_task, id, id_user])
 
         if (rows.affectedRows === 0) {
             return res.status(500).json({
@@ -192,16 +229,31 @@ export const controller_patch_task = async (req, res) => {
             newData: tasks
         })
 
-    } catch (error) {
-         
+    } catch {
+        res.status(500).json({ error: messages_system[500] })
+
     }
 }
 
 
 export const controller_delete_task = async (req, res) => {
     const { id } = req.params
+    const isValidate = validate_roles(res, [1, 2, 3], req.user.id_rol)
+    if (isValidate) return
 
     try {
+
+        const [[c_t_u]] = await pool.query('SELECT COUNT(*) AS c_t_u FROM tasks WHERE id = ? AND id_user = ?;',
+            [id, req.user.id])
+
+        if (c_t_u === 0) {
+            return res
+                .status(401)
+                .json({
+                    error: messages_system[401]
+                });
+        }
+
         const count_matches = await search_matches_by_table_name('tasks', 'id', id)
         if (count_matches === 0) {
             return res.status(404).json({
@@ -219,8 +271,7 @@ export const controller_delete_task = async (req, res) => {
 
         res.status(204)
 
-    } catch (error) {
-         
-
+    } catch {
+        res.status(500).json({ error: messages_system[500] });
     }
 }

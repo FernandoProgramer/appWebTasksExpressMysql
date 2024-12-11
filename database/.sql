@@ -78,10 +78,10 @@ VALUES
         'Debo de poner la basura de atras afuera para que el carro de la basura lo recoja'
     );
 
-UPDATE
+SELECT
+    COUNT(*) AS c_t_u
+FROM
     tasks
-SET
-    title_task = IFNULL(?, title_task),
-    description_task = IFNULL(?, title_task)
 WHERE
-    id_task = ?;
+    id = 5
+    AND id_user = 18;
