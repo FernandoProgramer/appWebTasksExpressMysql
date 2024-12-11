@@ -85,3 +85,12 @@ FROM
 WHERE
     id = 5
     AND id_user = 18;
+
+-- Actualizar estado de la tarea
+UPDATE
+    tasks
+SET
+    isCompleted = ?
+WHERE
+    id = ?
+    AND id_user = ?;

@@ -186,7 +186,7 @@ export const controller_patch_task = async (req, res) => {
 
     try {
 
-        const [[{c_t_u}]] = await pool.query('SELECT COUNT(*) AS c_t_u FROM tasks WHERE id = ? AND id_user = ?;',
+        const [[{ c_t_u }]] = await pool.query('SELECT COUNT(*) AS c_t_u FROM tasks WHERE id = ? AND id_user = ?;',
             [id, id_user])
         if (c_t_u === 0) {
             return res
@@ -243,7 +243,7 @@ export const controller_delete_task = async (req, res) => {
 
     try {
 
-        const [[c_t_u]] = await pool.query('SELECT COUNT(*) AS c_t_u FROM tasks WHERE id = ? AND id_user = ?;',
+        const [[{ c_t_u }]] = await pool.query('SELECT COUNT(*) AS c_t_u FROM tasks WHERE id = ? AND id_user = ?;',
             [id, req.user.id])
 
         if (c_t_u === 0) {
@@ -270,6 +270,66 @@ export const controller_delete_task = async (req, res) => {
         }
 
         res.status(204)
+
+    } catch {
+        res.status(500).json({ error: messages_system[500] });
+    }
+}
+
+
+export const controller_change_state_task = async (req, res) => {
+    const { id } = req.params
+    const id_user = req.user.id;
+    const role_user = req.user.id_rol;
+
+    const isValidate = validate_roles(res, [1, 2, 3], role_user)
+    if (isValidate) return
+
+
+    try {
+        const count_matches = await search_matches_by_table_name('tasks', 'id', id)
+        if (count_matches === 0) {
+            return res.status(404).json({
+                error: `Tarea no encontrada por id - ${id}`
+            })
+        }
+
+        const [[{ c_t_u }]] = await pool.query('SELECT COUNT(*) AS c_t_u FROM tasks WHERE id = ? AND id_user = ?;',
+            [id, id_user])
+
+        if (c_t_u === 0) {
+            return res
+                .status(401)
+                .json({
+                    error: messages_system[401]
+                });
+        }
+
+        const [[task]] = await pool.query('SELECT * FROM tasks WHERE id = ? AND id_user = ?', [id, id_user])
+        const newState = task.isCompleted == 0 ? 1 : 0;
+        const [response] = await pool.query(
+            `
+            UPDATE
+                tasks
+            SET
+                isCompleted = ?
+            WHERE
+                id = ?
+                AND id_user = ?;
+            `, [newState, id, id_user]);
+
+        if (response.affectedRows === 0) {
+            return res.status(500).json({
+                error: "No se logro cambiar el estado de la tarea"
+            })
+        }
+
+        const [[tasks]] = await pool.query('SELECT * FROM tasks WHERE id = ? AND id_user = ?;', [id, id_user])
+
+        res.status(200).json({
+            message: "Estado actualizado correctamnete",
+            task_updated: tasks
+        })
 
     } catch {
         res.status(500).json({ error: messages_system[500] });
