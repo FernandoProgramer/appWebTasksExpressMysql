@@ -4,6 +4,7 @@ import indexRoutes from './routes/index.js'
 import authenticationRoutes from './routes/authentication.routes.js'
 import tasksRoutes from './routes/tasks.routes.js'
 import usersRoutes from './routes/users.routes.js'
+// import cookieParser from 'cookie-parser'
 
 // Inicializaciones
 const app = express()
@@ -14,7 +15,7 @@ app.set('port', process.env.PORT || 4000)
 // Middlewares
 app.use(morgan('dev'))
 app.use(json())
-
+// app.use(cookieParser())
 
 
 // Variables globales  

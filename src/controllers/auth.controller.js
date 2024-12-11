@@ -1,6 +1,8 @@
 import bcrypt from 'bcryptjs'
 import pool from '../database.js'
 import jwt from 'jsonwebtoken'
+import { SECRET_KEY_JWT } from '../key.js'
+
 
 export const controller_register = async (req, res) => {
 
@@ -73,14 +75,24 @@ export const controller_login = async (req, res) => {
             });
         }
 
-        const jwt_token = jwt.sign({ id: user.id, email, id_rol: user.id_rol, isActive: user.isActive, username: user, username },
-            
+        const jwt_token = jwt.sign(
+            {
+                id: user.id,
+                email,
+                id_rol: user.id_rol,
+                isActive: user.isActive,
+                username: user.username
+            },
+            SECRET_KEY_JWT,
+            { expiresIn: '1h' }
         )
 
         // Respuesta exitosa
-        res.status(200).json({
-            message: 'Usuario logueado con éxito.',
-        });
+        res
+            .status(200).json({
+                message: 'Usuario logueado con éxito.',
+                jwt_token
+            });
 
     } catch (error) {
         // Manejo de errores

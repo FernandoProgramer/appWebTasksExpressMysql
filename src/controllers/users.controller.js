@@ -8,6 +8,14 @@ import pool from "../database.js"
 
 // Controlador para VER usuarios
 export const controller_show_users = async (req, res) => {
+    const { id_rol } = req.user
+    const ROLES_PERMITIDOS = [2, 3]
+
+    if (!ROLES_PERMITIDOS.includes(id_rol)) {
+        return res.status(403).json({
+            error: 'No autorizado para acceder a este recurso.',
+        });
+    }
     try {
         const [response] = await pool.query('SELECT * FROM users ORDER BY id DESC;')
         res.status(200).json(response)
