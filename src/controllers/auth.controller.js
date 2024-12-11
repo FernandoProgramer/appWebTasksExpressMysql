@@ -42,7 +42,6 @@ export const controller_register = async (req, res) => {
         })
 
     } catch (error) {
-        console.error('Error al crear un usuario', error);
         res.status(500).json({
             error: 'Ocurrió un error en el servidor. Por favor, intenta más tarde.',
         });
@@ -96,7 +95,6 @@ export const controller_login = async (req, res) => {
 
     } catch (error) {
         // Manejo de errores
-        console.error('Error en el inicio de sesión:', error);
         res.status(500).json({
             error: 'Ocurrió un error en el servidor. Por favor, intenta más tarde.',
         });

@@ -53,7 +53,7 @@ export const controller_show_task = async (req, res) => {
 
         res.status(200).json(finalResult)
     } catch (error) {
-        console.error(error)
+         
     }
 }
 
@@ -85,7 +85,7 @@ export const controller_saved_task = async (req, res) => {
         })
 
     } catch (error) {
-        console.error(error)
+         
     }
 }
 
@@ -148,7 +148,7 @@ export const controller_show_my_tasks = async (req, res) => {
         })
 
     } catch (error) {
-        console.error(error)
+         
     }
 }
 
@@ -193,7 +193,7 @@ export const controller_patch_task = async (req, res) => {
         })
 
     } catch (error) {
-        console.error(error);
+         
     }
 }
 
@@ -220,7 +220,7 @@ export const controller_delete_task = async (req, res) => {
         res.status(204)
 
     } catch (error) {
-        console.error(error)
+         
 
     }
 }

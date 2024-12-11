@@ -1,26 +1,28 @@
 import pool from "../database.js"
-
-// Controlador para CREAR usuarios
-// export const controller_create_user = async (req, res) => {
-//     const { username, email, password } = req.body
-// }
-
+import { validate_roles } from "../functions/validate.roles.js";
 
 // Controlador para VER usuarios
 export const controller_show_users = async (req, res) => {
-    const { id_rol } = req.user
-    const ROLES_PERMITIDOS = [2, 3]
+    // Inicializacion de variables y toda esa vuelta
+    const id_rol_user = req.user.id_rol;
 
-    if (!ROLES_PERMITIDOS.includes(id_rol)) {
-        return res.status(403).json({
-            error: 'No autorizado para acceder a este recurso.',
-        });
-    }
+    const isValidate = validate_roles(res, [1, 2, 3], id_rol_user);
+    if (isValidate) return isValidate;
+
     try {
-        const [response] = await pool.query('SELECT * FROM users ORDER BY id DESC;')
-        res.status(200).json(response)
+
+        let query = 'SELECT * FROM users';
+
+        if (id_rol_user === 1) {
+            query += ' WHERE id_rol != 2 AND id_rol != 3';
+        } else if (id_rol_user === 2) {
+            query += ' WHERE id_rol != 3';
+        }
+
+        query += ' ORDER BY id DESC';
+
+        const [response] = await pool.query(query); res.status(200).json(response);
     } catch (error) {
-        console.error('Error al traer lo usuarios', error)
         res.status(500).json({
             error: 'Error interno del servidor. Intente nuevamente más tarde.',
         });
@@ -31,57 +33,54 @@ export const controller_show_users = async (req, res) => {
 export const controller_update_users = async (req, res) => {
     const { username, email, password, id_rol } = req.body
     const { id } = req.params
+    const id_rol_user = req.user.id_rol;
+    const allowed_roles = {
+        1: [1], // Invitado solo puede asignar invitado
+        2: [1, 2], // Admin puede asignar admin e invitado
+        3: [1, 2, 3] // Superusuario puede asignar super, admin e invitado
+    };
+
+    validate_roles(res, [1, 2, 3], id_rol_user)
+
 
     if (id_rol) {
-        if (id_rol != 1 && id_rol != 2 && id_rol != 3) {
-            return res.status(400).json({
-                error: "El codigo de rol no es valido",
-                code_roles: [
-                    {
-                        id: 1,
-                        name: "INVITADO"
-                    },
-                    {
-                        id: 2,
-                        name: "ADMINISTRADOR"
-                    },
-                    {
-                        id: 1,
-                        name: "SUPERADMINISTRADOR"
-                    },
-                ]
-            })
+        if (!allowed_roles[id_rol_user]?.includes(id_rol)) {
+            return res.status(401).json({ error: "Rol no permitido o código de rol desconocido" });
         }
     }
 
     try {
         const [response] = await pool.query(`
-            UPDATE
-                users
-            SET
-                username = IFNULL (?, username),
-                email = IFNULL(?, email),
-                password = IFNULL(?, password),
-                id_rol = IFNULL(?, id_rol)
-            WHERE
-                id = ? 
-            `, [username, email, password, id_rol, id])
+    UPDATE
+    users
+    SET
+    username = IFNULL(?, username),
+        email = IFNULL(?, email),
+        password = IFNULL(?, password),
+        id_rol = IFNULL(?, id_rol)
+    WHERE
+    id = ?
+        `, [username, email, password, id_rol, id])
 
         if (response.affectedRows === 0) {
             return res.status(404).json({
-                error: `No se encontro el id: ${id}`
+                error: `No se encontro el id: ${id} `
             })
         }
 
-        const [user] = await pool.query('SELECT * FROM users WHERE id = ?', [id])
-
+        const [[user]] = await pool.query('SELECT * FROM users WHERE id = ?', [id])
         return res.status(200).json({
             message: "Usuario actualizado",
-            data_user: user[0]
+            data_user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                isActive: user.isActive,
+                id_rol: user.id_rol
+            }
         })
 
     } catch (error) {
-        console.error('Ocurrio algun error al actualizar el usuarios', error)
         res.status(500).json({
             error: 'Error interno del servidor. Intente nuevamente más tarde.',
         });
@@ -98,7 +97,7 @@ export const controller_update_status_active = async (req, res) => {
 
         if (!current_status) {
             return res.status(404).json({
-                error: `Usuario no encontrado por id: ${id}`
+                error: `Usuario no encontrado por id: ${id} `
             })
         }
         const newState = current_status.isActive === 1 ? 0 : 1
@@ -124,7 +123,6 @@ export const controller_update_status_active = async (req, res) => {
         })
 
     } catch (error) {
-        console.error('Ocurrio un error al intentar cambiar el estado de actividad de un usuario', error)
         res.status(500).json({
             error: 'Error interno del servidor. Intente nuevamente más tarde.',
         });
