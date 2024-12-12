@@ -1,9 +1,9 @@
 import express, { json } from 'express'
 import morgan from 'morgan'
-import indexRoutes from './routes/index.js'
-import authenticationRoutes from './routes/authentication.routes.js'
-import tasksRoutes from './routes/tasks.routes.js'
-import usersRoutes from './routes/users.routes.js'
+import indexRoutes from './src/routes/index.js'
+import authenticationRoutes from './src/routes/authentication.routes.js'
+import tasksRoutes from './src/routes/tasks.routes.js'
+import usersRoutes from './src/routes/users.routes.js'
 // import cookieParser from 'cookie-parser'
 
 // Inicializaciones
