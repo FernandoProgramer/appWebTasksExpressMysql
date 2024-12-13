@@ -4,6 +4,7 @@ import indexRoutes from './src/routes/index.js'
 import authenticationRoutes from './src/routes/authentication.routes.js'
 import tasksRoutes from './src/routes/tasks.routes.js'
 import usersRoutes from './src/routes/users.routes.js'
+import cors from 'cors'
 // import cookieParser from 'cookie-parser'
 
 // Inicializaciones
@@ -15,6 +16,7 @@ app.set('port', process.env.PORT || 4000)
 // Middlewares
 app.use(morgan('dev'))
 app.use(json())
+app.use(cors())
 // app.use(cookieParser())
 
 

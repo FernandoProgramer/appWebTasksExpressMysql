@@ -5,7 +5,6 @@ import { SECRET_KEY_JWT } from '../key.js'
 
 
 export const controller_register = async (req, res) => {
-
     const { username, email, password } = req.body
     const password_hash = await bcrypt.hash(password, 10)
 
