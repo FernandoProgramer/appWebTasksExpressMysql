@@ -7,6 +7,7 @@ import { useTasksContext } from '../../contexts/Tasks.context';
 import { toast, Toaster } from 'sonner';
 import { schemaSavedTask } from '../../schemas/validateSchemas/TasksSaved.schema';
 import { AlertError } from '../../components/ui/Alerts';
+import { Links } from '../../components/ui/Links';
 
 export const TasksSaved = () => {
     const { createTasks } = useTasksContext()
@@ -24,7 +25,11 @@ export const TasksSaved = () => {
                             if (statusResponse === 201) {
                                 action.resetForm();
                                 toast.success('Tarea registrada correctamente', {
-                                    style: { border: "1px solid black" }
+                                    style: { border: "1px solid black" },
+                                    action:
+                                        <Links destination='/'>
+                                            Ver tarea
+                                        </Links>
                                 });
                             }
                         }}
@@ -48,7 +53,7 @@ export const TasksSaved = () => {
                                     </div>
                                     <div>
                                         <LabelForm idName='description_task'>
-                                            Titulo
+                                            Descripción (opcional)
                                         </LabelForm>
                                         <InputField
                                             as='textarea'
