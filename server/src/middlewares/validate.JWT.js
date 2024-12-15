@@ -2,8 +2,8 @@ import jwt from 'jsonwebtoken'
 import { SECRET_KEY_JWT } from '../key.js';
 
 export const validate_token = (req, res, next) => {
-    const token = req.headers.authorization?.split(' ')[1];
 
+    const token = req.headers.cookie?.split('=')[1];
     if (!token) {
         return res.status(401).json({ error: 'Acceso no autorizado. Token requerido.' });
     }

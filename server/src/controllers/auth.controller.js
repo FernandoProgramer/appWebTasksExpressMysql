@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import pool from '../database.js'
 import jwt from 'jsonwebtoken'
+import { serialize } from 'cookie'
 import { SECRET_KEY_JWT } from '../key.js'
 
 
@@ -85,11 +86,18 @@ export const controller_login = async (req, res) => {
             { expiresIn: '1h' }
         )
 
-        // Respuesta exitosa
+        const serialized = serialize('MyNewToken', jwt_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',  // Asegúrate de usar HTTPS en producción
+            sameSite: 'strict',
+            maxAge: 30 * 60,  // 1 hora de expiración en milisegundos
+            path: '/'
+        })
+
         res
+            .setHeader('Set-Cookie', serialized)
             .status(200).json({
-                message: 'Usuario logueado con éxito.',
-                jwt_token
+                message: 'Usuario logueado con éxito.'
             });
 
     } catch (error) {

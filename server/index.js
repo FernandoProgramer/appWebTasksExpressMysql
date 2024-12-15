@@ -5,34 +5,39 @@ import authenticationRoutes from './src/routes/authentication.routes.js'
 import tasksRoutes from './src/routes/tasks.routes.js'
 import usersRoutes from './src/routes/users.routes.js'
 import cors from 'cors'
-// import cookieParser from 'cookie-parser'
 
 // Inicializaciones
-const app = express()
+const app = express();
 
 // Configuraciones
-app.set('port', process.env.PORT || 4000)
+app.set('port', process.env.PORT || 4000);
 
 // Middlewares
-app.use(morgan('dev'))
-app.use(json())
-app.use(cors())
-// app.use(cookieParser())
+app.use(morgan('dev'));
+app.use(json());
+
+// Autorizacion de envio de cookies desde otro dominio
+app.use(cors({
+    origin: 'http://localhost:3000',  // URL del frontend
+    credentials: true  // Permite enviar cookies
+}));
+
+
 
 
 // Variables globales  
 app.use((req, res, next) => {
-    next()
+    next();
 })
 
 //Rutas
-app.use('/api/v1', indexRoutes)
-app.use('/api/v1', authenticationRoutes)
-app.use('/api/v1/tasks', tasksRoutes) // tareas
-app.use('/api/v1/users', usersRoutes) // usuarios
+app.use('/api/v1', indexRoutes);
+app.use('/api/v1', authenticationRoutes);
+app.use('/api/v1/tasks', tasksRoutes); // tareas
+app.use('/api/v1/users', usersRoutes); // usuarios
 // Archivos pubicos
 
 // Empezar servidor
 app.listen(app.get('port'), () => {
-    console.log(`server on port ${app.get('port')}`)
+    console.log(`server on port ${app.get('port')}`);
 })

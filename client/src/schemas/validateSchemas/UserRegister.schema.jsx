@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-export const validateRegisterUserSchema = Yup.object({
+const validateRegisterUserSchema = Yup.object({
     username: Yup.string()
         .min(3, 'El nombre de usuario debe tener al menos 3 caracteres')
         .required('El nombre de usuario es obligatorio'),
@@ -21,3 +21,5 @@ export const validateRegisterUserSchema = Yup.object({
         .oneOf([Yup.ref('password'), null], 'Las contraseñas deben coincidir')
         .required('Debes confirmar tu contraseña')
 });
+
+export default validateRegisterUserSchema;

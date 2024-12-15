@@ -4,10 +4,11 @@ import { InputField } from '../../components/ui/InputField.jsx';
 import { registerUserSchema } from '../../schemas/User.schema.jsx';
 import { LabelForm } from '../../components/ui/LabelForm.jsx';
 import { ButtonForm } from '../../components/ui/ButtonForm.jsx';
-import { validateRegisterUserSchema } from '../../schemas/validateSchemas/UserRegister.schema.jsx';
+import validateRegisterUserSchema from '../../schemas/validateSchemas/UserRegister.schema.jsx';
 import { AlertError } from '../../components/ui/Alerts.jsx';
 import { useNavigate } from 'react-router-dom'
 import { Toaster, toast } from 'sonner'
+import { Links } from '../../components/ui/Links.jsx';
 
 export const RegisterUser = () => {
     const nav = useNavigate();
@@ -39,16 +40,14 @@ export const RegisterUser = () => {
                                                     cursor: 'pointer',
                                                     fontWeight: 'bold'
                                                 }}
-                                                onClick={() => nav('/')}
+                                                onClick={() => nav('/login')}
                                             >
                                                 Iniciar Sesión
                                             </button>
                                     });
 
                                 }
-                            } catch {
-                                console.error('Error del cliente');
-                            }
+                            } catch { }
                         }}
                     >
                         {({ isSubmitting, errors }) => (
@@ -131,6 +130,9 @@ export const RegisterUser = () => {
                             </Form>
                         )}
                     </Formik>
+                    <Links destination='/login'>
+                        Inicar sesion
+                    </Links>
                 </div>
                 <Toaster />
             </div>

@@ -127,6 +127,7 @@ export const controller_show_my_tasks = async (req, res) => {
             t.description_task,
             t.creation_date,
             t.update_date,
+            t.isCompleted,
             (SELECT COUNT(*) FROM tasks WHERE id_user = t.id_user) AS count_tasks
         FROM
             tasks t
@@ -160,7 +161,8 @@ export const controller_show_my_tasks = async (req, res) => {
             title: task2.title_task,
             description_task: task2.description_task,
             creation_date: task2.creation_date,
-            update_date: task2.update_date
+            update_date: task2.update_date,
+            isCompleted: task2.isCompleted,
         }))
 
         res.status(200).json({

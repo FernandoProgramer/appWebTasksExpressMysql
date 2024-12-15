@@ -36,11 +36,10 @@ export const Navbar = () => {
 
                     {/* Links */}
                     <ul
-                        className={`${
-                            isMenuOpen
-                                ? "block bg-white text-black rounded-md p-4 shadow-lg absolute top-16 left-0 w-full z-10"
-                                : "hidden"
-                        } lg:flex space-y-4 lg:space-y-0 lg:space-x-6 lg:items-center`}
+                        className={`${isMenuOpen
+                            ? "block bg-white text-black rounded-md p-4 shadow-lg absolute top-16 left-0 w-full z-10"
+                            : "hidden"
+                            } lg:flex space-y-4 lg:space-y-0 lg:space-x-6 lg:items-center`}
                     >
                         <li>
                             <Link
@@ -65,6 +64,13 @@ export const Navbar = () => {
                             >
                                 Registrarme
                             </Link>
+                        </li>
+                        <li>
+                            <button className="rounded-full bg-gradient-to-r from-indigo-400 to-indigo-600 text-white hover:from-yellow-400 hover:to-yellow-500 hover:text-black transition-all duration-300 ease-in-out focus:outline-none py-2 px-6 flex items-center justify-center">
+                                <Link to="/login" className="block w-full text-center">
+                                    Iniciar Sesión
+                                </Link>
+                            </button>
                         </li>
                     </ul>
                 </div>
