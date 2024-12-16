@@ -10,12 +10,14 @@ import { AlertError } from '../../components/ui/Alerts';
 import { Links } from '../../components/ui/Links';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useComponentsContext } from '../../contexts/AlertsSonner.context';
 
 export const TasksSaved = () => {
-    const { createTasks, loadTask, updateTask } = useTasksContext()
-    const [schemaTask, setSchemaTask] = useState(savedTask)
-    const { id } = useParams()
-    const navigate = useNavigate()
+    const { createTasks, loadTask, updateTask } = useTasksContext();
+    const { createToast } = useComponentsContext();
+    const [schemaTask, setSchemaTask] = useState(savedTask);
+    const { id } = useParams();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchApi = async () => {
@@ -61,6 +63,12 @@ export const TasksSaved = () => {
                             }
 
                             if (id && statusResponse === 200) {
+                                // Crear un nuevo toast al actualizar la tarea
+                                createToast({
+                                    type: "success", // Tipo de toast (success, error, etc.)
+                                    message: "Tarea Actualizada Correctamente",
+                                    options: { style: { border: "1px solid black" } }
+                                });
                                 navigate('/');
                             }
                         }}

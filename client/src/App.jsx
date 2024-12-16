@@ -6,11 +6,9 @@ import { TasksSaved } from './pages/task/TasksSaved.jsx';
 import { RegisterUser } from './pages/user/RegisterUser.jsx';
 import { Footer } from './components/Footer.jsx';
 import { LoginUser } from './pages/user/LoginUser.jsx';
-import { ModalSessionExpired } from './components/ModalSessionExpired.jsx';
-import { SessionExp } from './api/Session.api.jsx';
-import { useEffect, useState } from 'react';
 import { UserProvider } from './contexts/Users.context.jsx';
 import { TasksProvider } from './contexts/Tasks.context.jsx';
+
 
 const App = () => {
 
