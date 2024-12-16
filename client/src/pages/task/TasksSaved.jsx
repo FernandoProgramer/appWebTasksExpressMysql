@@ -8,29 +8,60 @@ import { toast, Toaster } from 'sonner';
 import { schemaSavedTask } from '../../schemas/validateSchemas/TasksSaved.schema';
 import { AlertError } from '../../components/ui/Alerts';
 import { Links } from '../../components/ui/Links';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 export const TasksSaved = () => {
-    const { createTasks } = useTasksContext()
+    const { createTasks, loadTask, updateTask } = useTasksContext()
+    const [schemaTask, setSchemaTask] = useState(savedTask)
+    const { id } = useParams()
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        const fetchApi = async () => {
+            if (id) {
+                const task = await loadTask(id)
+                setSchemaTask({
+                    title_task: task.title_task,
+                    description_task: task.description_task
+                })
+            }
+        }
+
+        fetchApi();
+    }, [id])
+
     return (
         <>
             <div className="flex items-center justify-center min-h-scree mb-11">
                 <div className="w-full max-w-md p-6 bg-white border-2 border-indigo-600 shadow-lg rounded-lg">
+
+                    <h1
+                        className='text-xl font-bold my-4'
+                    >{id ? 'ACTUALIZAR' : 'REGISTRAR'} TAREA</h1>
+
                     <Formik
-                        initialValues={savedTask}
+                        initialValues={schemaTask}
+                        enableReinitialize={true}
 
                         validationSchema={schemaSavedTask}
 
                         onSubmit={async (values, action) => {
-                            const statusResponse = await createTasks(values)
+                            const statusResponse = id ? await updateTask(values, id) : await createTasks(values)
                             if (statusResponse === 201) {
                                 action.resetForm();
-                                toast.success('Tarea registrada correctamente', {
+                                toast.success(`Tarea Registrada Correctamente`, {
                                     style: { border: "1px solid black" },
                                     action:
                                         <Links destination='/'>
                                             Ver tarea
                                         </Links>
                                 });
+
+                            }
+
+                            if (id && statusResponse === 200) {
+                                navigate('/');
                             }
                         }}
                     >
@@ -68,7 +99,7 @@ export const TasksSaved = () => {
                                     </div>
 
                                     <ButtonForm isSubmitting={isSubmitting}>
-                                        Guardar Tarea
+                                        {id ? 'Actualizar' : 'Guardar'} Tarea
                                     </ButtonForm>
                                 </Form>
                             </>

@@ -23,6 +23,7 @@ const App = () => {
         <Routes>
           <Route path='/' element={<TasksPages />} />
           <Route path='/newTask' element={<TasksSaved />} />
+          <Route path='/editTask/:id' element={<TasksSaved />} />
 
           {/* acciones del usuario */}
           <Route path='/register' element={<RegisterUser />} />

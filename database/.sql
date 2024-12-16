@@ -96,7 +96,8 @@ SELECT
     t.description_task,
     t.creation_date,
     t.update_date,
-    t.isCompleted, (
+    t.isCompleted,
+    (
         SELECT
             COUNT(*)
         FROM
@@ -111,3 +112,28 @@ WHERE
     u.id = 51
 ORDER BY
     creation_date DESC;
+
+SELECT
+    t.id as id_task,
+    t.id_user as id_user,
+    u.username as username_user,
+    u.email as email_user,
+    t.title_task,
+    t.description_task,
+    t.creation_date,
+    t.update_date,
+    t.isCompleted,
+    (
+        SELECT
+            COUNT(*)
+        FROM
+            tasks
+        WHERE
+            id_user = t.id_user
+    ) AS count_tasks
+FROM
+    tasks t
+    INNER JOIN users u ON t.id_user = u.id
+WHERE
+    t.id = 43
+    AND u.id = 51;

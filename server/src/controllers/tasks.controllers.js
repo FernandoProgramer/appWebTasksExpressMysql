@@ -271,7 +271,9 @@ export const controller_delete_task = async (req, res) => {
             })
         }
 
-        res.status(204)
+        res.status(200).json({
+            message: 'Tarea borrada con exito'
+        })
 
     } catch {
         res.status(500).json({ error: messages_system[500] });
@@ -331,6 +333,49 @@ export const controller_change_state_task = async (req, res) => {
         res.status(200).json({
             message: "Estado actualizado correctamnete",
             task_updated: tasks
+        })
+
+    } catch {
+        res.status(500).json({ error: messages_system[500] });
+    }
+}
+
+
+export const controller_show_task_by_id = async (req, res) => {
+    const id_task = req.params.id;
+    const { id } = req.user;
+    console.log('idRequest: ', id_task, 'idUser: ', id)
+    try {
+        const [[response]] = await pool.query(
+            `
+                SELECT
+                    t.id as id_task,
+                    t.id_user as id_user,
+                    u.username as username_user,
+                    u.email as email_user,
+                    t.title_task,
+                    t.description_task,
+                    t.creation_date,
+                    t.update_date,
+                    t.isCompleted,
+                    (SELECT COUNT(*) FROM tasks WHERE id_user = t.id_user) AS count_tasks
+                FROM
+                    tasks t
+                INNER JOIN users u ON t.id_user = u.id
+                WHERE
+                    t.id = ?    
+                    AND u.id = ?;
+            `
+            , [id_task, id]);
+
+        if (response.affectedRows === 0) {
+            return res.status(404).json({
+                error: `No se encontro la tarea con el id - ${id_task}`
+            })
+        }
+
+        res.status(200).json({
+            task: response
         })
 
     } catch {

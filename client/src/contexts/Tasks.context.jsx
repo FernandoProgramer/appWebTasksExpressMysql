@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import { createTask, showAllTasks } from "../api/tasks.api";
+import { createTask, deleteTaskRequest, showAllTasks, showTaskById, updateTaskRequest } from "../api/tasks.api";
 
 const TasksContext = createContext();
 
@@ -17,20 +17,33 @@ export const TasksProvider = ({ children }) => {
     const loadTasks = async () => { // Cargar tareas
         try {
             const { data } = await showAllTasks();
-            setTasks(data.tasks)
+            setTasks(data.tasks || [])
         } catch { }
     }
 
-    const deleteTask = () => {
+    const deleteTask = async (idTask) => {
+        try {
+            await deleteTaskRequest(idTask)
+            setTasks(tasks.filter(task => task.id_task !== idTask));
+        } catch { }
+    }
+
+    const updateTask = async (newData, id) => {
+        try {
+            const { status } = await updateTaskRequest(newData, id)
+            return status
+        } catch { }
+    }
+
+    const updateIsComplet = () => {
 
     }
 
-    const updateTask = () => {
-
-    }
-
-    const updateStateTask = () => {
-
+    const loadTask = async (id) => {
+        try {
+            const { data } = await showTaskById(id)
+            return data.task
+        } catch { }
     }
 
     return (
@@ -39,8 +52,9 @@ export const TasksProvider = ({ children }) => {
             loadTasks,
             deleteTask,
             updateTask,
-            updateStateTask,
-            createTasks
+            updateIsComplet,
+            createTasks,
+            loadTask
         }}>
             {children}
         </TasksContext.Provider>
