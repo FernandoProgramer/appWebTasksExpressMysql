@@ -8,8 +8,12 @@ import { Links } from '../../components/ui/Links.jsx'
 import { userAuthentication } from '../../api/users.api.jsx'
 import validationSchema from '../../schemas/validateSchemas/UserLogin.schame.jsx'
 import { useNavigate } from 'react-router-dom'
+import { useComponentsContext } from '../../contexts/AlertsSonner.context.jsx'
 
 export const LoginUser = () => {
+
+    const { createToast } = useComponentsContext()
+
     const navigate = useNavigate();
     return (
         <>
@@ -26,6 +30,12 @@ export const LoginUser = () => {
                                 const { status } = await userAuthentication(copyValues)
                                 if (status === 200) {
                                     action.resetForm();
+                                    // Crear un nuevo toast al actualizar la tarea
+                                    createToast({
+                                        type: "success", // Tipo de toast (success, error, etc.)
+                                        message: "¡¡Autenticación exitosa!!",
+                                        options: { style: { border: "1px solid black" } }
+                                    });
                                     navigate('/');
                                 }
 

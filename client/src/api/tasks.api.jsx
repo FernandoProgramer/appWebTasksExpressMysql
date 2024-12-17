@@ -29,3 +29,9 @@ export const updateTaskRequest = async (newData, id) => {
         withCredentials: true
     })
 }
+
+export const updateIsCompletedRequest = async (id) => {
+    return await axios.patch(`http://localhost:4000/api/v1/tasks/update/isCompleted/${id}`, {}, {
+        withCredentials: true
+    })
+}

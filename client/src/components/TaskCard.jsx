@@ -8,15 +8,17 @@ import { useNavigate } from 'react-router-dom'
 export const TaskCard = ({ task }) => {
     const navigate = useNavigate()
 
-    const { deleteTask } = useTasksContext()
-    const styleButtonToggle = task.isCompleted == 0 ? {
-        container: 'relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800',
-        span: 'relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0"'
-    } :
-        {
-            container: 'relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-teal-300 to-lime-300 group-hover:from-teal-300 group-hover:to-lime-300 dark:text-white dark:hover:text-gray-900 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-lime-800',
+    const { deleteTask, updateIsComplet } = useTasksContext()
+    const styleButtonToggle = task.isCompleted == 0
+        ? {
+            container: 'relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-red-500 group-hover:to-yellow-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800',
             span: 'relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0'
         }
+        : {
+            container: 'relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-teal-300 to-lime-300 group-hover:from-teal-400 group-hover:to-lime-400 dark:text-white dark:hover:text-gray-900 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-lime-800',
+            span: 'relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0'
+        };
+
 
     return (
         <>
@@ -26,7 +28,7 @@ export const TaskCard = ({ task }) => {
                             dark:bg-gray-800 dark:border-gray-700"
             >
                 {/* Título */}
-                <h1 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                <h1 className={`mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white ${task.isCompleted === 1 ? 'line-through ' : ''}`}>
                     {task.title}
                 </h1>
 
@@ -40,6 +42,7 @@ export const TaskCard = ({ task }) => {
                 {/* ESTADO DE COMPLETADO */}
                 <div className="actions flex gap-4">
                     <button
+                        onClick={() => updateIsComplet(task.id_task)}
                         className={styleButtonToggle.container}
                     >
                         <span className={styleButtonToggle.span}>

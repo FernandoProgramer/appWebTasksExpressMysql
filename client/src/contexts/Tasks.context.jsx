@@ -1,6 +1,6 @@
 // Importaciones necesarias
 import { createContext, useContext, useState } from "react";
-import { createTask, deleteTaskRequest, showAllTasks, showTaskById, updateTaskRequest } from "../api/tasks.api";
+import { createTask, deleteTaskRequest, showAllTasks, showTaskById, updateIsCompletedRequest, updateTaskRequest } from "../api/tasks.api";
 import { useComponentsContext } from "./AlertsSonner.context";
 
 // Creación del contexto para las tareas
@@ -57,8 +57,17 @@ export const TasksProvider = ({ children }) => {
     }
 
     // Función pendiente para actualizar el estado de completado de una tarea
-    const updateIsComplet = () => {
-        // Implementación pendiente
+    const updateIsComplet = async (id) => {
+        try {
+            await updateIsCompletedRequest(id)
+            const updatedTasks = tasks.map((task) =>
+                task.id_task === id
+                    ? { ...task, isCompleted: task.isCompleted === 0 ? 1 : 0 }
+                    : task
+            );
+
+            setTasks(updatedTasks);
+        } catch { }
     }
 
     // Función para cargar una tarea específica por ID (Read)
